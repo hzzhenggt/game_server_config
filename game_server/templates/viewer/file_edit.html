@@ -1,0 +1,13 @@
+{% extends 'viewer/base.html' %}
+
+{% block content %}
+  <h2>Edit file "{{ file.name }}" on server "{{ file.server.name }}"</h2>
+
+  <form method="post">
+    {% csrf_token %}
+    <textarea name="file_content" rows="30" cols="80">{{ file_content }}</textarea>
+    <br>
+    <input type="submit" value="Save">
+  </form>
+
+{% endblock %}

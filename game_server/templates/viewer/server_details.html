@@ -1,0 +1,29 @@
+{% extends 'viewer/base.html' %}
+
+{% block content %}
+  <h1>{{ server.host }}</h1>
+  <table class="table">
+    <tr>
+      <th>Host</th>
+      <td>{{ server.host }}</td>
+    </tr>
+    <tr>
+      <th>Port</th>
+      <td>{{ server.port }}</td>
+    </tr>
+    <tr>
+      <th>Username</th>
+      <td>{{ server.username }}</td>
+    </tr>
+    <tr>
+      <th>Password</th>
+      <td>{{ server.password|default:'Not provided' }}</td>
+    </tr>
+    <tr>
+      <th>Private key</th>
+      <td>{{ server.private_key|default:'Not provided' }}</td>
+    </tr>
+  </table>
+  <a class="btn btn-primary" href="{% url 'server_edit' server.pk %}">Edit</a>
+  <a class="btn btn-danger" href="{% url 'server_delete' server.pk %}">Delete</a>
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends 'viewer/base.html' %}
+
+{% block content %}
+  <h1>Server List</h1>
+  <a href="{% url 'server_add' %}">Add Server</a>
+  <table>
+    <tr>
+      <th>Host</th>
+      <th>Port</th>
+      <th>Username</th>
+      <th>Password</th>
+      <th>Private Key</th>
+    </tr>
+    {% for server in servers %}
+    <tr>
+      <td>{{ server.host }}</td>
+      <td>{{ server.port }}</td>
+      <td>{{ server.username }}</td>
+      <td>{{ server.password }}</td>
+      <td>{{ server.private_key }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+{% endblock %}

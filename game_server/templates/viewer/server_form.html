@@ -1,0 +1,11 @@
+{% extends 'viewer/base.html' %}
+
+{% block content %}
+  <h1>Add Server</h1>
+  <form method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a href="{% url 'server_list' %}" class="btn btn-secondary">Cancel</a>
+  </form>
+{% endblock %}

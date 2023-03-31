@@ -1,0 +1,52 @@
+{% extends 'viewer/base.html' %}
+
+{% block content %}
+<h1>Run command on {{ server }}</h1>
+<hr>
+
+<form id="command-form">
+  {% csrf_token %}
+  <div class="form-group">
+    <label for="command">Command:</label>
+    <textarea class="form-control" id="command" name="command" rows="5"></textarea>
+  </div>
+  <button type="submit" class="btn btn-primary">Run</button>
+</form>
+
+<br>
+
+<div class="card">
+  <div class="card-header">
+    Output
+  </div>
+  <div class="card-body">
+    <pre id="output"></pre>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+  $(document).ready(function() {
+    $('#command-form').on('submit', function(event) {
+      event.preventDefault();
+      const command = $('#command').val();
+      $.ajax({
+        url: '',
+        type: 'POST',
+        data: {
+          'command': command,
+          'csrfmiddlewaretoken': $('input[name="csrfmiddlewaretoken"]').val()
+        },
+        success: function(response) {
+          $('#output').text(response.output);
+        },
+        error: function(error) {
+          $('#output').text(error.responseText);
+        }
+      });
+    });
+  });
+</script>
+{% endblock %}

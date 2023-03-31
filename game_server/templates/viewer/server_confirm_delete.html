@@ -1,0 +1,10 @@
+{% extends 'viewer/base.html' %}
+
+{% block content %}
+  <h1>Delete Server "{{ server.host }}"?</h1>
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Delete</button>
+    <a href="{% url 'server_list' %}" class="btn btn-secondary">Cancel</a>
+  </form>
+{% endblock %}
