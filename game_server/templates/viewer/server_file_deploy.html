@@ -1,0 +1,54 @@
+<!-- server_file_deploy.html -->
+{% extends 'viewer/base.html' %}
+
+{% block content %}
+  <h1>Deploy Server File</h1>
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="form-group">
+      <label for="content">File Content</label>
+      <textarea class="form-control" id="content" name="content" rows="10">{{ file.content }}</textarea>
+      <div class="my-3">
+        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="formatContent()">Format Content</button>
+        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="clearContent()">Clear Content</button>
+        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="refreshPreview()">Refresh Preview</button>
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="deploy_path">Deploy Path</label>
+      <input type="text" class="form-control" id="deploy_path" name="deploy_path" value="{{ file.deploy_path }}" required>
+    </div>
+    <div class="form-group">
+      <label for="description">Description</label>
+      <textarea class="form-control" id="description" name="description" rows="3">{{ file.description }}</textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Deploy</button>
+  </form>
+
+  <h2 class="mt-5">Preview</h2>
+  <div id="preview"></div>
+
+{% endblock %}
+
+{% block extra_js %}
+  <script src="https://cdn.jsdelivr.net/npm/markdown@0.6.1/dist/markdown.min.js"></script>
+  <script>
+    function formatContent() {
+      var content = document.getElementById('content').value;
+      document.getElementById('content').value = content.replace(/\n/g, '\n  ');
+    }
+
+    function clearContent() {
+      document.getElementById('content').value = '';
+    }
+
+    function refreshPreview() {
+      var content = document.getElementById('content').value;
+      var preview = document.getElementById('preview');
+      preview.innerHTML = markdown.toHTML(content);
+    }
+
+    // 初始化预览
+    refreshPreview();
+  </script>
+{% endblock extra_js %}

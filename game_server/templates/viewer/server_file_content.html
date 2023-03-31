@@ -1,0 +1,75 @@
+<!-- server_file_content.html -->
+{% extends 'viewer/base.html' %}
+
+{% block content %}
+  <h1>File Content - {{ file.name }}</h1>
+  <div class="btn-toolbar mb-2" role="toolbar">
+    <a href="{% url 'server_file_edit' file.pk %}" class="btn btn-primary">Edit</a>
+    <a href="{% url 'server_file_delete' file.pk %}" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this file?')">Delete</a>
+    <a href="{% url 'file_deploy' file.pk %}" class="btn btn-success" onclick="return confirm('Are you sure you want to deploy this file?')">Deploy</a>
+  </div>
+  <hr>
+  <div id="editor">{{ file.content }}</div>
+{% endblock %}
+
+{% block extra_css %}
+  <link href="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@latest/dist/editorjs.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block extra_js %}
+  <script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@latest"></script>
+  <script>
+    var editor = new EditorJS({
+      holder: 'editor',
+      tools: {
+        header: {
+          class: Header,
+          inlineToolbar: ['link']
+        },
+        link: LinkTool
+      },
+      data: {
+        // 将 file.content 转换成 editorjs 所需的格式
+        blocks: [
+          {
+            type: 'header',
+            data: {
+              text: '{{ file.name }}',
+              level: 1
+            }
+          },
+          {
+            type: 'paragraph',
+            data: {
+              text: '{{ file.content }}'
+            }
+          }
+        ]
+      }
+    });
+
+    $(document).ready(function() {
+      // 监听部署按钮点击事件
+      $('#deploy-btn').on('click', function() {
+        var deployPath = prompt("Please enter the deployment path", "{{ file.deploy_path }}");
+        if (deployPath != null && deployPath != "") {
+          // 发起部署请求
+          $.ajax({
+            url: "{% url 'file_deploy' file.pk %}",
+            type: "POST",
+            data: {
+              csrfmiddlewaretoken: '{{ csrf_token }}',
+              deploy_path: deployPath
+            },
+            success: function(response) {
+              alert(response.message);
+            },
+            error: function(xhr) {
+              alert(xhr.responseText);
+            }
+          });
+        }
+      });
+    });
+  </script>
+{% endblock %}

@@ -7,8 +7,20 @@ urlpatterns = [
     path('<int:pk>/edit/', views.server_edit, name='server_edit'),
     path('<int:pk>/delete/', views.server_delete, name='server_delete'),
     path('<int:pk>/', views.server_detail, name='server_detail'),
-    path('list_files/', views.list_files, name='list_files'),
+    path('server/<int:pk>/file/add/', views.server_file_add, name='server_file_add'),
     path('get_file/', views.get_file, name='get_file'),
     path('save_file/', views.save_file, name='save_file'),
+    path('upload/<int:pk>/', views.upload_file, name='server_upload'),
     path('run_command/', views.run_command, name='run_command'),
+    #path("file_detail/<int:pk>/<str:path>/", views.file_detail, name='file_detail'),
+    path('file/<int:pk>/', views.server_file_detail, name='server_file_detail'),
+    #path('file/<int:pk>/', views.ServerFileDetailView.as_view(), name='server_file_detail'),
+    path('file/<int:pk>/edit/', views.server_file_edit, name='server_file_edit'),
+    path('file/<int:pk>/content/', views.get_file_content, name='file_content'),
+    path('file/<int:pk>/deploy/', views.deploy_file, name='file_deploy'),
+    path('server_files/', views.server_file_list, name='server_file_list'),
+    path('serverfile/<int:pk>/delete/', views.ServerFileDeleteView.as_view(), name='server_file_delete'),
+    path('compare/<int:pk>/', views.server_file_compare, name='server_file_compare'),
 ]
+
+

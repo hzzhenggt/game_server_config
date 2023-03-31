@@ -1,0 +1,12 @@
+{% extends 'viewer/base.html' %}
+
+{% block content %}
+  <h1>Delete Server File</h1>
+  <p>Are you sure you want to delete "{{ object }}"?</p>
+
+  <form method="post">
+    {% csrf_token %}
+    <input type="submit" class="btn btn-danger" value="Delete">
+    <a href="{% url 'server_file_detail' object.pk %}" class="btn btn-secondary">Cancel</a>
+  </form>
+{% endblock %}

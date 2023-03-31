@@ -1,0 +1,27 @@
+{% extends 'viewer/base.html' %}
+
+{% block content %}
+  <h1>{{ title }}</h1>
+  <form method="post">
+    {% csrf_token %}
+    <div class="form-group">
+      <label for="name">Name:</label>
+      <input type="text" class="form-control" id="name" name="name" value="{{ file.name }}" required>
+    </div>
+    <div class="form-group">
+      <label for="deploy_path">Deploy Path:</label>
+      <input type="text" class="form-control" id="deploy_path" name="deploy_path" value="{{ file.deploy_path }}" required>
+    </div>
+    <div class="form-group">
+      <label for="description">Description:</label>
+      <textarea class="form-control" id="description" name="description">{{ file.description }}</textarea>
+    </div>
+    <div class="form-group">
+      <label for="content">Content:</label>
+      <textarea class="form-control" id="content" name="content" rows="20">{{ file.content }}</textarea>
+    </div>
+    <input type="hidden" name="server" value="{{ server.pk }}">
+    <button type="submit" class="btn btn-primary">{{ button_text }}</button>
+    <a href="{% url 'server_detail' server.pk %}" class="btn btn-secondary">Cancel</a>
+  </form>
+{% endblock %}

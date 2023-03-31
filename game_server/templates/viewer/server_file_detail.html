@@ -1,0 +1,40 @@
+<!-- server_file_detail.html -->
+{% extends 'viewer/base.html' %}
+{% load static %}
+{% block content %}
+  <h1>File Detail</h1>
+  <div class="row">
+    <div class="col-md-6">
+      <h3>name: {{ file.name }}</h3>
+      <p>Path: {{ file.path }}</p>
+      <p>Size: {{ file.size }}</p>
+      <p>Server: {{ file.server }}</p>
+      <hr>
+      <pre><code>{{ file.content }}</code></pre>
+      <hr>
+      <h4>Content</h4>
+      <div id="markdown-content"></div>
+      <hr>
+      <button type="button" class="btn btn-primary" id="deploy-button">Deploy</button>
+    </div>
+  </div>
+{% endblock %}
+
+{% block extra_js %}
+
+  <script>
+    $(document).ready(function() {
+      // 加载文件内容
+      $.get("{% url 'server_file_detail' file.pk %}", function(data) {
+        $('#markdown-content').html(markdown.toHTML(data));
+      });
+
+      // 部署文件
+      $('#deploy-button').on('click', function() {
+        $.post("{% url 'file_deploy' file.pk %}", function(data) {
+          alert(data.message);
+        });
+      });
+    });
+  </script>
+{% endblock %}

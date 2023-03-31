@@ -1,0 +1,38 @@
+# server_file_compare.html
+{% extends 'viewer/base.html' %}
+
+{% block content %}
+  <h1>Compare {{ server_file.name }}</h1>
+  <p>
+    <a href="{% url 'server_file_edit' server_file.pk %}" class="btn btn-primary">Edit</a>
+    <a href="{% url 'server_file_delete' server_file.pk %}" class="btn btn-danger">Delete</a>
+    <a href="{% url 'server_file_detail' server_file.pk %}" class="btn btn-secondary">Back</a>
+  </p>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>{{ server_file.server }}:{{ server_file.deploy_path }}</th>
+        <th>{{ server_file.name }}</th>
+        <th>{{ server_file.size }}</th>
+        <th>{{ server_file.last_modified }}</th>
+        <th>Diff</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for line in diff %}
+      <tr>
+        {% if line.startswith('+') %}
+        <td>&nbsp;</td>
+        <td class="bg-success text-white">{{ line }}</td>
+        {% elif line.startswith('-') %}
+        <td class="bg-danger text-white">{{ line }}</td>
+        <td>&nbsp;</td>
+        {% else %}
+        <td>{{ line }}</td>
+        <td>{{ line }}</td>
+        {% endif %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

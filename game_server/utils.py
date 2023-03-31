@@ -1,4 +1,4 @@
-from paramiko import SSHClient, AutoAddPolicy
+import paramiko
 from paramiko.ssh_exception import AuthenticationException, SSHException
 import yaml
 import os
@@ -6,21 +6,20 @@ import os
 
 def ssh_connect(server):
     """Creates an SSH connection to a server."""
-    ssh = SSHClient()
-    ssh.set_missing_host_key_policy(AutoAddPolicy())
+    if server.password:
+        auth = {'password': server.password}
+    else:
+        key = paramiko.RSAKey.from_private_key_file(server.private_key.file.path, password=server.private_key_password)
+        auth = {'pkey': key}
+
+    ssh = paramiko.SSHClient()
+    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
     try:
-        ssh.connect(
-            hostname=server.hostname,
-            port=server.port,
-            username=server.username,
-            password=server.password,
-            key_filename=server.private_key,
-        )
+        ssh.connect(server.host, server.port, server.username, **auth)
     except (AuthenticationException, SSHException) as e:
         print(f"Failed to connect to {server.hostname}: {e}")
         return None
-
     return ssh
 
 

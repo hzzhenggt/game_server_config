@@ -2,23 +2,46 @@
 
 {% block content %}
   <h1>Server List</h1>
-  <a href="{% url 'server_add' %}">Add Server</a>
-  <table>
-    <tr>
-      <th>Host</th>
-      <th>Port</th>
-      <th>Username</th>
-      <th>Password</th>
-      <th>Private Key</th>
-    </tr>
-    {% for server in servers %}
-    <tr>
-      <td>{{ server.host }}</td>
-      <td>{{ server.port }}</td>
-      <td>{{ server.username }}</td>
-      <td>{{ server.password }}</td>
-      <td>{{ server.private_key }}</td>
-    </tr>
-    {% endfor %}
+  <a href="{% url 'server_add' %}" class="btn btn-primary">Add Server</a>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Host</th>
+        <th>Port</th>
+        <th>Username</th>
+        <th>Password/Key</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for server in servers %}
+      <tr>
+        <td><a href="{% url 'server_detail' server.pk %}">{{ server.name }}</a></td>
+        <td>{{ server.host }}</td>
+        <td>{{ server.port }}</td>
+        <td>{{ server.username }}</td>
+        <td>{% if server.private_key %}***{% else %}***{% endif %}</td>
+        <td>
+          <a href="{% url 'server_detail' server.pk %}" class="btn btn-info btn-sm">View</a>
+          <a href="{% url 'server_edit' server.pk %}" class="btn btn-warning btn-sm">Edit</a>
+          <a href="{% url 'server_delete' server.pk %}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this server?')">Delete</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
   </table>
 {% endblock %}
+
+{% block extra_js %}
+  <script>
+    $(document).ready(function() {
+      // 监听模态框的确认按钮点击事件
+      $('.modal-footer button[type="submit"]').on('click', function() {
+        // 获取对应的表单并提交
+        var formId = $(this).closest('.modal-footer').find('form').attr('id');
+        $('#' + formId).submit();
+      });
+    });
+  </script>
+{% endblock extra_js %}

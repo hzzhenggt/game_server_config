@@ -1,0 +1,61 @@
+{% extends 'viewer/base.html' %}
+
+{% block content %}
+  <h1>{{ server.name }} Detail</h1>
+  <div class="row mb-3">
+    <div class="col-md-3">
+      <h3>Server Info</h3>
+      <table>
+        <tr>
+          <td>Name:</td>
+          <td>{{ server.name }}</td>
+        </tr>
+        <tr>
+          <td>Host:</td>
+          <td>{{ server.host }}</td>
+        </tr>
+        <tr>
+          <td>Port:</td>
+          <td>{{ server.port }}</td>
+        </tr>
+      </table>
+      <a class="btn btn-primary mt-3" href="{% url 'server_edit' server.pk %}">Edit Server</a>
+    </div>
+    <div class="col-md-9">
+      <h3>Server Files</h3>
+      <div class="d-flex justify-content-end mb-3">
+        <a class="btn btn-primary me-2" href="{% url 'server_file_add' server.pk %}">Add Server File</a>
+        <a class="btn btn-secondary" href="{% url 'server_detail' server.pk %}">Refresh</a>
+      </div>
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Size</th>
+            <th>Deploy Path</th>
+            <th>Modified Time</th>
+            <th>Description</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for file in files %}
+          <tr>
+            <td>{{ file.name }}</td>
+            <td>{{ file.size }}</td>
+            <td>{{ file.deploy_path }}</td>
+            <td>{{ file.modified_time }}</td>
+            <td>{{ file.description }}</td>
+            <td>
+              <a class="btn btn-sm btn-primary" href="{% url 'server_file_detail' file.pk %}">View</a>
+              <a class="btn btn-sm btn-success" href="{% url 'server_file_edit' file.pk %}">Edit</a>
+              <a class="btn btn-sm btn-danger" href="{% url 'server_file_delete' file.pk %}">Delete</a>
+              <a class="btn btn-sm btn-info" href="{% url 'server_file_compare' file.pk %}">Compare</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endblock %}

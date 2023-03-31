@@ -1,5 +1,27 @@
 from django import forms
-from .models import Server
+from .models import Server, ServerFile
+
+
+
+class ServerFileForm(forms.ModelForm):
+    class Meta:
+        model = ServerFile
+        fields = ['name', 'deploy_path', 'description', 'content']
+        widgets = {
+            'description': forms.Textarea(attrs={'rows': 2}),
+            'content': forms.Textarea(attrs={'rows': 20}),
+        }
+
+    #content = forms.FileField(widget=forms.ClearableFileInput(attrs={'multiple': True}))
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['name'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Enter file name'})
+        self.fields['deploy_path'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Enter deploy path'})
+        self.fields['description'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Enter description'})
+        # self.fields['content'].widget.attrs.update({'class': 'form-control-file'})
+        self.fields['content'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Enter Content'})
+
 
 
 class ServerForm(forms.ModelForm):

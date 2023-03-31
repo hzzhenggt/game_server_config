@@ -1,10 +1,18 @@
+<!-- server_confirm_delete.html -->
 {% extends 'viewer/base.html' %}
 
 {% block content %}
-  <h1>Delete Server "{{ server.host }}"?</h1>
-  <form method="post">
+  <h1>Delete Server</h1>
+  <p>Are you sure you want to delete the following server?</p>
+  <dl class="dl-horizontal">
+    <dt>Name:</dt><dd>{{ object.name }}</dd>
+    <dt>Host:</dt><dd>{{ object.host }}</dd>
+    <dt>Port:</dt><dd>{{ object.port }}</dd>
+    <dt>Username:</dt><dd>{{ object.username }}</dd>
+  </dl>
+  <form action="{% url 'server_delete' object.pk %}" method="post">
     {% csrf_token %}
-    <button type="submit" class="btn btn-danger">Delete</button>
+    <input type="submit" value="Confirm" class="btn btn-danger">
     <a href="{% url 'server_list' %}" class="btn btn-secondary">Cancel</a>
   </form>
 {% endblock %}
