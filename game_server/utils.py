@@ -9,7 +9,7 @@ def ssh_connect(server):
     if server.password:
         auth = {'password': server.password}
     else:
-        key = paramiko.RSAKey.from_private_key_file(server.private_key.file.path, password=server.private_key_password)
+        key = paramiko.RSAKey.from_private_key(server.private_key, password=server.private_key_password)
         auth = {'pkey': key}
 
     ssh = paramiko.SSHClient()
@@ -18,7 +18,7 @@ def ssh_connect(server):
     try:
         ssh.connect(server.host, server.port, server.username, **auth)
     except (AuthenticationException, SSHException) as e:
-        print(f"Failed to connect to {server.hostname}: {e}")
+        print(f"Failed to connect to {server.name} {server.host}:{server.port}: {e}")
         return None
     return ssh
 
@@ -48,7 +48,7 @@ def get_file(server, path):
     sftp = ssh.open_sftp()
     try:
         file = sftp.file(path)
-        data = file.read()
+        data = file.read().decode("utf-8")
     except IOError:
         data = None
     sftp.close()

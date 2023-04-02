@@ -7,24 +7,24 @@
     <a href="{% url 'server_file_edit' server_file.pk %}" class="btn btn-primary">Edit</a>
     <a href="{% url 'server_file_delete' server_file.pk %}" class="btn btn-danger">Delete</a>
     <a href="{% url 'server_file_detail' server_file.pk %}" class="btn btn-secondary">Back</a>
+    <a href="{% url 'server_detail' server.pk %}" class="btn btn-secondary">返回服务器</a>
+    <button type="button" class="btn btn-primary" id="deploy-button">Deploy</button>
+
   </p>
   <table class="table">
     <thead>
       <tr>
-        <th>{{ server_file.server }}:{{ server_file.deploy_path }}</th>
-        <th>{{ server_file.name }}</th>
-        <th>{{ server_file.size }}</th>
-        <th>{{ server_file.last_modified }}</th>
-        <th>Diff</th>
+        <th>当前数据库内容</th>
+        <th>目标服务器内容</th>
       </tr>
     </thead>
     <tbody>
       {% for line in diff %}
       <tr>
-        {% if line.startswith('+') %}
+        {% if line.0 == '+' %}
         <td>&nbsp;</td>
         <td class="bg-success text-white">{{ line }}</td>
-        {% elif line.startswith('-') %}
+        {% elif line.0 == '-' %}
         <td class="bg-danger text-white">{{ line }}</td>
         <td>&nbsp;</td>
         {% else %}
@@ -35,4 +35,18 @@
       {% endfor %}
     </tbody>
   </table>
+{% endblock %}
+
+{% block extra_js %}
+
+  <script>
+    $(document).ready(function() {
+      // 部署文件
+      $('#deploy-button').on('click', function() {
+        $.post("{% url 'file_deploy' server_file.pk %}", function(data) {
+          alert(data.message);
+        });
+      });
+    });
+  </script>
 {% endblock %}

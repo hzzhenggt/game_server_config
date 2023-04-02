@@ -26,10 +26,10 @@ class ServerFileForm(forms.ModelForm):
 
 class ServerForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput, required=False)
-
+    private_key_password = forms.CharField(widget=forms.PasswordInput, required=False)
     class Meta:
         model = Server
-        fields = ('name', 'host', 'port', 'username', 'password', 'private_key')
+        fields = ('name', 'host', 'port', 'username', 'password', 'private_key', 'private_key_password')
         widgets = {
             'private_key': forms.Textarea(attrs={'rows': 10}),
         }
@@ -38,6 +38,9 @@ class ServerForm(forms.ModelForm):
         cleaned_data = super().clean()
         password = cleaned_data.get('password')
         private_key = cleaned_data.get('private_key')
+        private_key_password = cleaned_data.get('private_key_password')
         if not password and not private_key:
             raise forms.ValidationError('Either password or private key must be provided.')
+        
+        
 

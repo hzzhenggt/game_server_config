@@ -9,13 +9,13 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>{% block title %}{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
-	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{% static 'jquery/jquery-3.6.0.min.js' %}"></script>
 
     {% block extra_css %}{% endblock %}
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="{% url 'server_list' %}">Server Manager</a>
+        <a class="navbar-brand" href="{% url 'server_list' %}">Server Conf Manager</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>

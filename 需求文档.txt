@@ -1,0 +1,54 @@
+我们现在把需求分类，并且细化如下，后续所有开发按照需求文档进行，完成后在需求的路由，数据结构，数据模型，视图，模版的所有内容，并且经过我本地测试 ，统一在需求后标记【测试】。
+需求内容分为3大块，前端使用bootstrap 5, 后端使用django3.2.5
+一、服务器管理：
+1.0 数据模型
+    django Model 名称Server, 描述:服务器 
+    fields以显示名称:定义，
+    服务器名称:name，IP:ip，端口:port，用户名:user，密码password，描述desc，状态:status，创建时间:created，修改时间:updated, 项目:project
+     django Model 名称Project, 描述:项目
+    fields以显示名称:定义，
+    项目名称:name，描述:desc，创建时间:created，修改时间:updated
+1.1 查看服务器列表
+    appname:smgr
+    1.1.1 查看所有服务器，分页显示，每页显示10条, 支持搜索，搜索字段包括：服务器名称，IP，端口，用户名，项目, 认证方式密码或者密钥，注意前端不能显示明文密码，密钥，需要加密显示。
+    路由需求：GET /smgr/server/list/ 
+1.2 增加服务器
+    路由需求：POST /smgr/server/add/
+1.3 修改服务器
+    路由需求：POST /smgr/server/update/<int:pk>/
+1.4 查看单个服务器明细
+    路由需求：GET /smgr/server/detail/<int:pk>/
+    前端需要显示和服务器相关所有配置文件，包括配置文件名称，配置文件内容，描述，项目，部署路径，部署结果，部署时间
+1.5 删除服务器，有二级确认。
+    路由需求：POST /smgr/server/delete/<int:pk>/
+二、服务器配置文件管理：
+2.0 数据模型
+    django Model 名称ServerFile, 描述:服务器文件
+    fields以显示名称:定义，
+    配置文件名称:name，配置文件内容:content，描述:desc，创建时间:created，修改时间:updated, 项目:project, deploy_path:部署路径, server:服务器
+    django Model 名称DeplyLog, 描述:部署日志
+    fields以显示名称:定义，
+    配置文件名称:name，配置文件内容:content，描述:desc，创建时间:created，修改时间:updated, 项目:project, deploy_path:部署路径, server:服务器，部署结果:log
+2.1 查看所有配置文件
+    appname:smgr
+    2.1.1 查看所有配置文件，分页显示，每页显示10条, 支持搜索，搜索字段包括：配置文件名称，配置文件内容，描述，项目，服务器，部署路径
+    路由需求：GET /smgr/serverfile/list/
+2.2 增加配置文件
+    路由需求：POST /smgr/serverfile/add/
+2.3 修改配置文件
+    路由需求：POST /smgr/serverfile/update/<int:pk>/
+2.4 查看配置文件明细
+    路由需求：GET /smgr/serverfile/detail/<int:pk>/
+2.5 删除服务器配置文件，有二级确认。
+    路由需求：POST /smgr/serverfile/delete/<int:pk>/
+2.6 部署配置文件到服务器
+    路由需求：POST /smgr/serverfile/deploy/<int:pk>/
+2.6 查看配置文件和服务器部署目录diff
+    路由需求：GET /smgr/serverfile/diff/<int:pk>/
+2.7 查看所有服务器配置文件部署
+    路由需求：GET /smgr/serverfile/deploylog/list/
+2.8 查看服务器配置文件部署日志
+    路由需求：GET /smgr/serverfile/deploylog/detail/<int:pk>/
+    
+三、服务器配置文件模板管理：
+

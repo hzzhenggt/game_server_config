@@ -10,7 +10,7 @@ class Server(models.Model):
     username = models.CharField(max_length=100)
     password = models.CharField(max_length=100, blank=True, null=True)
     private_key = models.TextField(blank=True, null=True)
-
+    private_key_password = models.CharField(max_length=100, blank=True, null=True, default="")
 
     def __str__(self):
         return self.host
@@ -37,3 +37,5 @@ class ServerFile(models.Model):
 
     def deploy_file(self, deploy_path):
         return save_file(self.server, deploy_path, self.content)
+    
+    

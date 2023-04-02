@@ -1,10 +1,10 @@
 {% extends 'viewer/base.html' %}
-{% load bootstrap %}
+{% load django_bootstrap5 %}
 {% block content %}
   <h1>Add Server</h1>
   <form method="post">
     {% csrf_token %}
-    {{ form|bootstrap }}
+    {% bootstrap_form form %}
     <button type="submit" class="btn btn-primary">Save</button>
     <a href="{% url 'server_list' %}" class="btn btn-secondary">Cancel</a>
   </form>

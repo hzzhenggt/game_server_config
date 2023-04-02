@@ -12,9 +12,6 @@
       <hr>
       <pre><code>{{ file.content }}</code></pre>
       <hr>
-      <h4>Content</h4>
-      <div id="markdown-content"></div>
-      <hr>
       <button type="button" class="btn btn-primary" id="deploy-button">Deploy</button>
     </div>
   </div>
@@ -24,11 +21,6 @@
 
   <script>
     $(document).ready(function() {
-      // 加载文件内容
-      $.get("{% url 'server_file_detail' file.pk %}", function(data) {
-        $('#markdown-content').html(markdown.toHTML(data));
-      });
-
       // 部署文件
       $('#deploy-button').on('click', function() {
         $.post("{% url 'file_deploy' file.pk %}", function(data) {

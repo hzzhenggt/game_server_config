@@ -16,7 +16,9 @@ from .models import Server, ServerFile
 from .forms import ServerForm, ServerFileForm
 from .utils import ssh_connect, list_files, get_file, save_file, execute_command
 import os
-
+import pygments
+from pygments.lexers import get_lexer_for_filename
+from pygments.formatters import HtmlFormatter
 
 def server_list(request):
     servers = Server.objects.all()
@@ -77,13 +79,17 @@ def server_detail(request, pk):
 
 
 def server_file_detail(request, pk):
-    server_file = get_object_or_404(ServerFile, pk=pk)
-    context = {
-        'file': server_file,
-    }
-    return render(request, 'viewer/server_file_detail.html', context)
-
-
+    # ...
+    if request.method == 'GET':
+        server_file = get_object_or_404(ServerFile, pk=pk)
+        content = server_file.content
+        if content is None:
+            content = ''
+        else:
+            lexer = get_lexer_for_filename(server_file.name)
+            formatter = HtmlFormatter(style='colorful')
+            content = pygments.highlight(content, lexer, formatter)
+        return render(request, 'viewer/server_file_detail.html', {'file': server_file, 'content': content})
 # class ServerFileDetailView(DetailView):
 #     model = ServerFile
 #     template_name = 'viewer/server_file_detail.html'
@@ -176,10 +182,11 @@ def server_file_compare(request, pk):
     diff = list(d.compare(server_file_content.splitlines(), remote_file_content.splitlines()))
 
     context = {
+        "server":server, 
         'server_file': server_file,
         'diff': diff
     }
-    return render(request, 'smr/server_file_compare.html', context)
+    return render(request, 'viewer/server_file_compare.html', context)
 
 
 class ServerFileDeleteView(DeleteView):
