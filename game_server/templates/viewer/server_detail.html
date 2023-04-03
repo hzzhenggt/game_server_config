@@ -1,5 +1,5 @@
 {% extends 'viewer/base.html' %}
-
+{% load humanize %}
 {% block content %}
   <h1>{{ server.name }} Detail</h1>
   <div class="row mb-3">
@@ -44,7 +44,7 @@
             <td>{{ file.name }}</td>
             <td>{{ file.size }}</td>
             <td>{{ file.deploy_path }}</td>
-            <td>{{ file.modified_time }}</td>
+            <td>{{ file.last_modified |date:"Y-m-d H:i:s" }}</td>
             <td>{{ file.description }}</td>
             <td>
               <a class="btn btn-sm btn-primary" href="{% url 'server_file_detail' file.pk %}">View</a>

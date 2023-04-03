@@ -43,12 +43,32 @@ def history_detail(request, pk):
 
 
 def server_list(request):
-    servers = Server.objects.all()
+    servers = Server.objects.all().order_by('-id')
+    paginator = Paginator(servers, 10)  # 10 items per page
+    page = request.GET.get('page')
+    try:
+        servers = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        servers = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        servers = paginator.page(paginator.num_pages)
     return render(request, 'viewer/server_list.html', {'servers': servers})
 
 
 def server_file_list(request):
-    server_files = ServerFile.objects.all()
+    server_files = ServerFile.objects.all().order_by('-id')
+    paginator = Paginator(server_files, 10)  # 10 items per page
+    page = request.GET.get('page')
+    try:
+        server_files = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        server_files = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        server_files = paginator.page(paginator.num_pages)
     return render(request, 'viewer/server_file_list.html', {'server_files': server_files})
 
 
@@ -160,6 +180,7 @@ def server_file_add(request, pk):
         if form.is_valid():
             server_file = form.save(commit=False)
             server_file.server = server
+            server_file.size = len(server_file.content)
             server_file.save()
             return HttpResponseRedirect(reverse('server_detail', args=[pk]))
     else:
