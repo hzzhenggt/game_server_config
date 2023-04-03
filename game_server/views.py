@@ -9,16 +9,37 @@ from django.views.generic.detail import DetailView
 from django.utils.html import escape
 from django.utils.datastructures import MultiValueDictKeyError
 from django.db.models import Q
-
-from .models import Command, Server, ServerFile
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from .models import Command, History, HistoryAction, Server, ServerFile
 from .forms import CommandForm, ServerForm, ServerFileForm
 from .utils import ssh_connect, list_files, get_file, save_file, execute_command
 
 import os
 import difflib
-import pygments
-from pygments.lexers import get_lexer_for_filename
-from pygments.formatters import HtmlFormatter
+# import pygments
+# from pygments.lexers import get_lexer_for_filename
+# from pygments.formatters import HtmlFormatter
+
+
+def history_list(request):
+    historys = History.objects.all().order_by('-created')
+    paginator = Paginator(historys, 10)  # 10 items per page
+    page = request.GET.get('page')
+    try:
+        historys = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        historys = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        historys = paginator.page(paginator.num_pages)
+
+    return render(request, 'viewer/history_list.html', {'historys': historys})
+
+
+def history_detail(request, pk):
+    history = get_object_or_404(History, pk=pk)
+    return render(request, 'viewer/history_detail.html', {"history": history})
 
 
 def server_list(request):
@@ -165,7 +186,6 @@ def server_file_edit(request, pk):
     return render(request, 'viewer/server_file_edit.html', {'form': form, 'server_file': server_file, 'title': 'Edit Server File'})
 
 
-
 def server_file_compare(request, pk):
     server_file = get_object_or_404(ServerFile, pk=pk)
     server = server_file.server
@@ -220,6 +240,17 @@ def file_edit(request, pk):
 
 def command_list(request):
     commands = Command.objects.all()
+    # search
+    search_query = request.GET.get('search')
+    if search_query:
+        commands = commands.filter(Q(name__icontains=search_query))
+    # pagination
+    paginator = Paginator(commands, 10)
+    page = request.GET.get('page')
+    try:
+        commands = paginator.page(page)
+    except PageNotAnInteger:
+        commands = paginator.page(1)
     servers = Server.objects.all()
     return render(request, 'viewer/commands.html', {'commands': commands, 'servers': servers})
 
@@ -255,6 +286,23 @@ def delete_command(request, pk):
     return redirect('commands')
 
 
+
+def create_history(request, action, server, content, result):
+    """创建一个历史记录"""
+    try:
+        his_data = {
+            "user": f"{request.user}",
+            "action": f"{action}",
+            "server": f"{server}",
+            "content": f"{content}",
+            "result": f"{result}",
+        }
+        his = History.objects.create(**his_data)
+        print(f"create history {his.id}: {his_data}")
+    except Exception as e:
+        print(f"create history error: {e}")
+
+
 @csrf_exempt
 def handle_execute_command(request):
     if request.method == 'POST':
@@ -262,21 +310,33 @@ def handle_execute_command(request):
         server_id = request.POST['server']
         server = get_object_or_404(Server, pk=server_id)
         output, error = execute_command(server, content)
-        return JsonResponse({'output': output, 'error': error}, safe=False, json_dumps_params={'ensure_ascii': False})
+        result = {'output': output, 'error': error}
+        create_history(request, HistoryAction.ExecCmd, server, content, result)
+        return JsonResponse(result, safe=False, json_dumps_params={'ensure_ascii': False})
+    else:
+        return JsonResponse({'output': "", 'error': "method must be post"}, safe=False, json_dumps_params={'ensure_ascii': False})
 
 
 def commands(request):
     return command_list(request)
 
+
 @csrf_exempt
-def run_command(request, pk):
-    server = get_object_or_404(Server, pk=pk)
+def run_command(request):
+    """执行 command
+    需要 post 两个参数 command 和 server
+    """
     if request.method == 'POST':
-        command = request.POST['command']
-        output, error = execute_command(server, command)
-        return JsonResponse({'output': output, 'error': error})
+        command_id = request.POST['command']
+        server_id = request.POST['server']
+        server = get_object_or_404(Server, pk=server_id)
+        command = get_object_or_404(Command, pk=command_id)
+        output, error = execute_command(server, command.content)
+        result = {'output': output, 'error': error}
+        create_history(request, HistoryAction.ExecCmd, server, command.content, result)
+        return JsonResponse(result, safe=False, json_dumps_params={'ensure_ascii': False})
     else:
-        return render(request, 'viewer/run_command.html', {'server': server})
+        return JsonResponse({'output': "", 'error': "method must be post"}, safe=False, json_dumps_params={'ensure_ascii': False})
 
 
 @csrf_exempt

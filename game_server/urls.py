@@ -16,7 +16,7 @@ urlpatterns = [
     path('command/edit/<int:pk>/', views.edit_command, name='edit_command'), 
     path('command/delete/<int:pk>/', views.delete_command, name='delete_command'), 
     path('command/execute/', views.handle_execute_command, name='execute_command'), 
-    path('command/run/<int:pk>/', views.run_command, name='run_command'),
+    path('command/run/', views.run_command, name='run_command'),
     #path("file_detail/<int:pk>/<str:path>/", views.file_detail, name='file_detail'),
     path('file/<int:pk>/', views.server_file_detail, name='server_file_detail'),
     #path('file/<int:pk>/', views.ServerFileDetailView.as_view(), name='server_file_detail'),
@@ -26,6 +26,9 @@ urlpatterns = [
     path('server_files/', views.server_file_list, name='server_file_list'),
     path('serverfile/<int:pk>/delete/', views.ServerFileDeleteView.as_view(), name='server_file_delete'),
     path('compare/<int:pk>/', views.server_file_compare, name='server_file_compare'),
+    # 历史记录
+    path('history/', views.history_list, name='history_list'),
+    path("history/<int:pk>/", views.history_detail, name='history_detail'),
 ]
 
 

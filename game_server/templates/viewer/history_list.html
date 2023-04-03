@@ -1,0 +1,56 @@
+{% extends 'viewer/base.html' %}
+{% load humanize %}
+{% block content %}
+  <h1>history List</h1>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>created</th>
+        <th>user</th>
+        <th>server</th>
+        <th>action</th>
+        <th>content</th>
+        <th>result</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for history in historys %}
+      <tr>
+        <td>{{ history.created|date:"Y-m-d H:i:s" }}</td>
+        <td>{{ history.user }}</td>
+        <td>{{ history.server }}</td>
+        <td>{{ history.action }}</td>
+        <td><a href="{% url 'history_detail' history.pk %}">{{ history.content|truncatechars:100 }}</a></td>
+        <td>{{ history.result|truncatechars:100 }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <nav aria-label="Page navigation">
+    <ul class="pagination justify-content-center">
+      {% if historys.has_previous %}
+      <li class="page-item"><a class="page-link" href="?page=1">First</a></li>
+      <li class="page-item"><a class="page-link" href="?page={{ historys.previous_page_number }}">Previous</a></li>
+      {% endif %}
+
+      {% for page_num in historys.paginator.page_range %}
+        {% if page_num == historys.number %}
+        <li class="page-item active"><a class="page-link" href="#">{{ page_num }}</a></li>
+        {% elif page_num > historys.number|add:'-3' and page_num < historys.number|add:'3' %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a></li>
+        {% endif %}
+      {% endfor %}
+
+      {% if historys.has_next %}
+      <li class="page-item"><a class="page-link" href="?page={{ historys.next_page_number }}">Next</a></li>
+      <li class="page-item"><a class="page-link" href="?page={{ historys.paginator.num_pages }}">Last</a></li>
+      {% endif %}
+    </ul>
+  </nav>
+{% endblock %}
+
+{% block extra_js %}
+  <script>
+  </script>
+{% endblock extra_js %}

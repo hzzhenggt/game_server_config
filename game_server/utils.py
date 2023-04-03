@@ -3,7 +3,7 @@ import paramiko
 from paramiko.ssh_exception import AuthenticationException, SSHException
 import yaml
 import os
-
+import chardet
 
 def ssh_connect(server):
     """Creates an SSH connection to a server."""
@@ -78,13 +78,21 @@ def save_file(server, path, data):
 
 
 def execute_command(server, command):
-    """Runs a command on an SSH server."""
+    # print("#####00", command, type(command))
     ssh = ssh_connect(server)
     stdin, stdout, stderr = ssh.exec_command(command)
-    output = stdout.read().decode('utf-8')
-    error = stderr.read().decode('utf-8')
+    bstdout = stdout.read()
+    bstderr = stderr.read()
+    # 检测 stdout 和 stderr 的编码方式
+    _encoding = chardet.detect(bstdout + bstderr)['encoding']
+    #print("#####11", bstdout + bstderr, _encoding)
+    # 解码 stdout 和 stderr 为字符串
+    output = bstdout.decode(_encoding)
+    error = bstderr.decode(_encoding)
     ssh.close()
+    # print("#####22", output, error, _encoding)
     return output, error
+
 
 
 def load_config(config_path):

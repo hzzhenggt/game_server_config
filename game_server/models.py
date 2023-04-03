@@ -50,3 +50,22 @@ class Command(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class HistoryAction:
+    """操作类型"""
+    ExecCmd = 'exec_cmd'
+    UploadFile = 'upload_file'
+
+
+class History(models.Model):
+    # user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    user = models.CharField(max_length=100, null=True, blank=True, default="")
+    server = models.CharField(max_length=100, null=True, blank=True, default="")
+    action = models.CharField(max_length=100, null=True, blank=True, default="")
+    content = models.TextField(null=True, blank=True)
+    result = models.TextField(null=True, blank=True)
+    created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'{self.user} - {self.server} - {self.action}'
