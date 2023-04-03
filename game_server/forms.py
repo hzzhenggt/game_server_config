@@ -1,6 +1,5 @@
 from django import forms
-from .models import Server, ServerFile
-
+from .models import Command, Server, ServerFile
 
 
 class ServerFileForm(forms.ModelForm):
@@ -44,3 +43,13 @@ class ServerForm(forms.ModelForm):
         
         
 
+
+
+class CommandForm(forms.ModelForm):
+    class Meta:
+        model = Command
+        fields = ('name', 'content')
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'content': forms.Textarea(attrs={'class': 'form-control'})
+        }

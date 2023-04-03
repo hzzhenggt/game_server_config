@@ -1,24 +1,25 @@
-import difflib
+
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib import messages
-from django.http import HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
 from django.views.generic.edit import DeleteView
 from django.views.generic.detail import DetailView
-
 from django.utils.html import escape
 from django.utils.datastructures import MultiValueDictKeyError
 from django.db.models import Q
 
-from .models import Server, ServerFile
-from .forms import ServerForm, ServerFileForm
+from .models import Command, Server, ServerFile
+from .forms import CommandForm, ServerForm, ServerFileForm
 from .utils import ssh_connect, list_files, get_file, save_file, execute_command
+
 import os
+import difflib
 import pygments
 from pygments.lexers import get_lexer_for_filename
 from pygments.formatters import HtmlFormatter
+
 
 def server_list(request):
     servers = Server.objects.all()
@@ -85,10 +86,10 @@ def server_file_detail(request, pk):
         content = server_file.content
         if content is None:
             content = ''
-        else:
-            lexer = get_lexer_for_filename(server_file.name)
-            formatter = HtmlFormatter(style='colorful')
-            content = pygments.highlight(content, lexer, formatter)
+        # else:
+        #     lexer = get_lexer_for_filename(server_file.name)
+        #     formatter = HtmlFormatter(style='colorful')
+        #     content = pygments.highlight(content, lexer, formatter)
         return render(request, 'viewer/server_file_detail.html', {'file': server_file, 'content': content})
 # class ServerFileDetailView(DetailView):
 #     model = ServerFile
@@ -214,6 +215,58 @@ def file_edit(request, pk):
         file_content = get_file(server_file)
     return render(request, 'viewer/file_edit.html', {'file': server_file, 'file_content': file_content})
 
+
+
+
+def command_list(request):
+    commands = Command.objects.all()
+    servers = Server.objects.all()
+    return render(request, 'viewer/commands.html', {'commands': commands, 'servers': servers})
+
+
+
+def add_command(request):
+    if request.method == 'POST':
+        form = CommandForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Command added successfully.')
+            return redirect('commands')
+    else:
+        form = CommandForm()
+    return render(request, 'viewer/add_command.html', {'form': form})
+
+
+def edit_command(request, pk):
+    command = get_object_or_404(Command, pk=pk)
+    if request.method == 'POST':
+        form = CommandForm(request.POST, instance=command)
+        if form.is_valid():
+            form.save()
+            return redirect('commands')
+    else:
+        form = CommandForm(instance=command)
+    return render(request, 'viewer/edit_command.html', {'form': form, 'command': command})
+
+
+def delete_command(request, pk):
+    command = get_object_or_404(Command, pk=pk)
+    command.delete()
+    return redirect('commands')
+
+
+@csrf_exempt
+def handle_execute_command(request):
+    if request.method == 'POST':
+        content = request.POST['command']
+        server_id = request.POST['server']
+        server = get_object_or_404(Server, pk=server_id)
+        output, error = execute_command(server, content)
+        return JsonResponse({'output': output, 'error': error}, safe=False, json_dumps_params={'ensure_ascii': False})
+
+
+def commands(request):
+    return command_list(request)
 
 @csrf_exempt
 def run_command(request, pk):

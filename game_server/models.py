@@ -39,3 +39,14 @@ class ServerFile(models.Model):
         return save_file(self.server, deploy_path, self.content)
     
     
+
+class Command(models.Model):
+    name = models.CharField(max_length=100)
+    content = models.TextField()
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+    lastrun = models.DateTimeField(null=True, blank=True)
+    lastresult = models.TextField(null=True, blank=True)
+
+    def __str__(self):
+        return self.name

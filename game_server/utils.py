@@ -1,3 +1,4 @@
+import typing
 import paramiko
 from paramiko.ssh_exception import AuthenticationException, SSHException
 import yaml
@@ -44,11 +45,12 @@ def get_file(server, path):
     ssh = ssh_connect(server)
     if ssh is None:
         return None
-
     sftp = ssh.open_sftp()
+    print(f"path: {server.name} - {server.host}:{server.port} {path}")
     try:
         file = sftp.file(path)
         data = file.read().decode("utf-8")
+        print(f"data: {data}")
     except IOError:
         data = None
     sftp.close()

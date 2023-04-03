@@ -28,7 +28,7 @@
                     <a class="nav-link" href="{% url 'server_file_list' %}">Server-Files</a>
                 </li>
                 <li class="nav-item {% if request.path|urlstartswith:'/command/' %} %}active{% endif %}">
-                    <a class="nav-link" href="{% url 'run_command' %}">Commands</a>
+                    <a class="nav-link" href="{% url 'commands' %}">Commands</a>
                 </li>
 
             </ul>

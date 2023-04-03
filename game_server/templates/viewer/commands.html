@@ -1,0 +1,74 @@
+<!-- commands.html -->
+{% extends 'viewer/base.html' %}
+
+{% block content %}
+  <h1>Commands</h1>
+  <ul class="list-group">
+    {% for command in commands %}
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        {{ command.name }}
+        <div>
+          <a class="btn btn-primary me-2" href="{% url 'edit_command' command.id %}">Edit</a>
+          <a class="btn btn-danger" href="{% url 'delete_command' command.id %}">Delete</a>
+        </div>
+      </li>
+    {% endfor %}
+  </ul>
+  <a class="btn btn-primary mt-3" href="{% url 'add_command' %}">Add Command</a>
+
+  <hr>
+
+  <h2>Execute Command</h2>
+  <form method="post" action="{% url 'execute_command' %}">
+    {% csrf_token %}
+    <div class="mb-3">
+      <label for="command" class="form-label">Command:</label>
+      <select id="command-select" name="command" class="form-select">
+        {% for command in commands %}
+          <option value="{{ command.id }}">{{ command.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="mb-3">
+      <label for="server" class="form-label">Server:</label>
+      <select id="server-select" name="server" class="form-select">
+        {% for server in servers %}
+          <option value="{{ server.id }}">{{ server.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </form>
+  <button id="execute-btn" type="submit" class="btn btn-primary">Execute</button>
+  <hr>
+
+  <h2>Command Output</h2>
+  <pre>{{ output }}</pre>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        $('#execute-btn').click(function() {
+          var server_pk = $('#server-select').val();
+          var command_pk = $('#command-select').val();
+          var url = '{% url "execute_command" %}';
+          $.ajax({
+            url: url,
+            type: 'POST',
+            data: {
+              'server': server_pk,
+              'command': command_pk,
+              'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            dataType: 'json',
+            success: function(response) {
+              $('#output-pre').text(response.output);
+            },
+            error: function(xhr, status, error) {
+              console.log(xhr.responseText);
+            }
+          });
+        });
+      });
+</script>
+{% endblock %}
