@@ -2,6 +2,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
 from django.contrib import messages
 from django.urls import reverse, reverse_lazy
 from django.views.generic.edit import DeleteView
@@ -21,19 +23,18 @@ import difflib
 # from pygments.formatters import HtmlFormatter
 
 
+@login_required
 def history_list(request):
-    historys = History.objects.all().order_by('-created')
+    projects = request.user.projects.all()
+    historys = History.objects.filter(project__in=projects).order_by('-created')
     paginator = Paginator(historys, 10)  # 10 items per page
     page = request.GET.get('page')
     try:
         historys = paginator.page(page)
     except PageNotAnInteger:
-        # If page is not an integer, deliver first page.
         historys = paginator.page(1)
     except EmptyPage:
-        # If page is out of range (e.g. 9999), deliver last page of results.
         historys = paginator.page(paginator.num_pages)
-
     return render(request, 'viewer/history_list.html', {'historys': historys})
 
 
@@ -42,36 +43,37 @@ def history_detail(request, pk):
     return render(request, 'viewer/history_detail.html', {"history": history})
 
 
+@login_required
 def server_list(request):
-    servers = Server.objects.all().order_by('-id')
-    paginator = Paginator(servers, 10)  # 10 items per page
+    projects = request.user.projects.all()
+    servers = Server.objects.filter(project__in=projects).order_by('-id')
+    paginator = Paginator(servers, 10)
     page = request.GET.get('page')
     try:
         servers = paginator.page(page)
     except PageNotAnInteger:
-        # If page is not an integer, deliver first page.
         servers = paginator.page(1)
     except EmptyPage:
-        # If page is out of range (e.g. 9999), deliver last page of results.
         servers = paginator.page(paginator.num_pages)
     return render(request, 'viewer/server_list.html', {'servers': servers})
 
 
+@login_required
 def server_file_list(request):
-    server_files = ServerFile.objects.all().order_by('-id')
-    paginator = Paginator(server_files, 10)  # 10 items per page
+    projects = request.user.projects.all()
+    server_files = ServerFile.objects.filter(project__in=projects).order_by('-id')
+    paginator = Paginator(server_files, 10)
     page = request.GET.get('page')
     try:
         server_files = paginator.page(page)
     except PageNotAnInteger:
-        # If page is not an integer, deliver first page.
         server_files = paginator.page(1)
     except EmptyPage:
-        # If page is out of range (e.g. 9999), deliver last page of results.
         server_files = paginator.page(paginator.num_pages)
     return render(request, 'viewer/server_file_list.html', {'server_files': server_files})
 
 
+@login_required
 def server_add(request):
     if request.method == 'POST':
         form = ServerForm(request.POST)
@@ -88,6 +90,7 @@ def server_add(request):
     return render(request, 'viewer/server_form.html', {'form': form})
 
 
+@login_required
 def server_edit(request, pk):
     server = get_object_or_404(Server, pk=pk)
     if request.method == 'POST':
@@ -100,6 +103,7 @@ def server_edit(request, pk):
     return render(request, 'viewer/server_form.html', {'form': form})
 
 
+@login_required
 def server_delete(request, pk):
     server = get_object_or_404(Server, pk=pk)
     if request.method == 'POST':
@@ -108,6 +112,7 @@ def server_delete(request, pk):
     return render(request, 'viewer/server_confirm_delete.html', {'object': server})
 
 
+@login_required
 def server_detail(request, pk):
     server = get_object_or_404(Server, pk=pk)
     files = ServerFile.objects.filter(server=server)
@@ -120,36 +125,17 @@ def server_detail(request, pk):
     return render(request, 'viewer/server_detail.html', context)
 
 
+@login_required
 def server_file_detail(request, pk):
-    # ...
     if request.method == 'GET':
         server_file = get_object_or_404(ServerFile, pk=pk)
         content = server_file.content
         if content is None:
             content = ''
-        # else:
-        #     lexer = get_lexer_for_filename(server_file.name)
-        #     formatter = HtmlFormatter(style='colorful')
-        #     content = pygments.highlight(content, lexer, formatter)
-        return render(request, 'viewer/server_file_detail.html', {'file': server_file, 'content': content})
-# class ServerFileDetailView(DetailView):
-#     model = ServerFile
-#     template_name = 'viewer/server_file_detail.html'
-#     context_object_name = 'server_file'
-
-#     def get(self, request, pk, *args, **kwargs):
-#         self.object = self.get_object()
-#         context = self.get_context_data(object=self.object)
-#         context['content'] = self.object.get_file_content()
-#         return self.render_to_response(context)
-
-#     def post(self, request, *args, **kwargs):
-#         self.object = self.get_object()
-#         deploy_path = request.POST.get('deploy_path')
-#         self.object.deploy_file(deploy_path)
-#         return HttpResponseRedirect(reverse('server_file_list'))
+        return render(request, 'viewer/server_file_detail.html', {'server_file': server_file, 'content': content})
 
 
+@login_required
 def get_file_content(request, pk):
     server_file = get_object_or_404(ServerFile, pk=pk)
     content = get_file(server_file.server, server_file.deploy_path)
@@ -157,22 +143,21 @@ def get_file_content(request, pk):
 
 
 @csrf_exempt
+@login_required
 def deploy_file(request, pk):
     server_file = get_object_or_404(ServerFile, pk=pk)
-
     if request.method == 'POST':
-        form = ServerFileForm(request.POST, request.FILES, instance=server_file)
-        if form.is_valid():
-            form.save()
-            save_file(server_file.server, server_file.deploy_path, server_file.content)
-            messages.success(request, 'File deployed successfully.')
-            return redirect('server_detail', pk=server_file.server.pk)
+        try:
+            r = save_file(server_file.server, server_file.deploy_path, server_file.content)
+            return JsonResponse({'result': r, 'message': f'save file to remote {r}'}, safe=False, json_dumps_params={"ensure_ascii": False})
+        except Exception as e:
+            return JsonResponse({'result': 'error', 'message': e}, safe=False, json_dumps_params={"ensure_ascii": False})
     else:
-        form = ServerFileForm(instance=server_file)
+        return JsonResponse({'result': 'error', 'message': 'Only POST method allowed.'}, safe=False, json_dumps_params={"ensure_ascii": False})
+    # return render(request, 'viewer/server_file_deploy.html', {'server_file': server_file, 'form': form})
 
-    return render(request, 'viewer/server_file_deploy.html', {'server_file': server_file, 'form': form})
 
-
+@login_required
 def server_file_add(request, pk):
     server = get_object_or_404(Server, pk=pk)
     if request.method == 'POST':
@@ -192,6 +177,7 @@ def server_file_add(request, pk):
     return render(request, 'viewer/server_file_add.html', context)
 
 
+@login_required
 def server_file_edit(request, pk):
     server_file = get_object_or_404(ServerFile, pk=pk)
 
@@ -207,36 +193,32 @@ def server_file_edit(request, pk):
     return render(request, 'viewer/server_file_edit.html', {'form': form, 'server_file': server_file, 'title': 'Edit Server File'})
 
 
+@login_required
 def server_file_compare(request, pk):
     server_file = get_object_or_404(ServerFile, pk=pk)
     server = server_file.server
-
-    # Get the contents of the server file
     server_file_content = server_file.content
-
-    # Get the contents of the remote file
     remote_file_content = get_file(server, server_file.deploy_path)
     if remote_file_content is None:
         remote_file_content = ''
-
-    # Do the diff
     d = difflib.Differ()
     diff = list(d.compare(server_file_content.splitlines(), remote_file_content.splitlines()))
-
     context = {
-        "server":server, 
+        "server": server,
         'server_file': server_file,
         'diff': diff
     }
     return render(request, 'viewer/server_file_compare.html', context)
 
 
+@method_decorator(login_required, name='dispatch')
 class ServerFileDeleteView(DeleteView):
     model = ServerFile
     template_name = 'viewer/server_file_delete.html'
     success_url = reverse_lazy('server_list')
 
 
+@login_required
 def file_detail(request, pk, path):
     # server_file = get_object_or_404(ServerFile, pk=pk)
     server = get_object_or_404(Server, pk=pk)
@@ -245,6 +227,7 @@ def file_detail(request, pk, path):
     return render(request, 'viewer/file_detail.html', {'file': server_file, 'file_content': file_content})
 
 
+@login_required
 def file_edit(request, pk):
     server_file = get_object_or_404(ServerFile, pk=pk)
     server = server_file.server
@@ -257,26 +240,25 @@ def file_edit(request, pk):
     return render(request, 'viewer/file_edit.html', {'file': server_file, 'file_content': file_content})
 
 
-
-
+@login_required
 def command_list(request):
-    commands = Command.objects.all()
+    projects = request.user.projects.all()
+    commands = Command.objects.filter(project__in=projects).order_by('-id')
+    servers = Server.objects.filter(project__in=projects).order_by('-id')
     # search
     search_query = request.GET.get('search')
     if search_query:
         commands = commands.filter(Q(name__icontains=search_query))
-    # pagination
     paginator = Paginator(commands, 10)
     page = request.GET.get('page')
     try:
         commands = paginator.page(page)
     except PageNotAnInteger:
         commands = paginator.page(1)
-    servers = Server.objects.all()
     return render(request, 'viewer/commands.html', {'commands': commands, 'servers': servers})
 
 
-
+@login_required
 def add_command(request):
     if request.method == 'POST':
         form = CommandForm(request.POST)
@@ -289,6 +271,7 @@ def add_command(request):
     return render(request, 'viewer/add_command.html', {'form': form})
 
 
+@login_required
 def edit_command(request, pk):
     command = get_object_or_404(Command, pk=pk)
     if request.method == 'POST':
@@ -307,7 +290,6 @@ def delete_command(request, pk):
     return redirect('commands')
 
 
-
 def create_history(request, action, server, content, result):
     """创建一个历史记录"""
     try:
@@ -315,6 +297,7 @@ def create_history(request, action, server, content, result):
             "user": f"{request.user}",
             "action": f"{action}",
             "server": f"{server}",
+            "project": server.project,
             "content": f"{content}",
             "result": f"{result}",
         }
@@ -325,6 +308,7 @@ def create_history(request, action, server, content, result):
 
 
 @csrf_exempt
+@login_required
 def handle_execute_command(request):
     if request.method == 'POST':
         content = request.POST['command']
@@ -374,6 +358,7 @@ def upload_file(request, pk):
         return render(request, 'viewer/upload_file.html', {'server': server})
 
 
+@login_required
 def download_file(request, pk):
     """
     Downloads a file from a server and returns it as an attachment.

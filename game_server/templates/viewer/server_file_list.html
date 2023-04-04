@@ -6,7 +6,9 @@
   <table class="table table-striped">
     <thead>
       <tr>
+        <th>#</th>
         <th>Name</th>
+        <th>Server</th>
         <th>Size</th>
         <th>Deploy Path</th>
         <th>Modified Time</th>
@@ -17,13 +19,15 @@
     <tbody>
       {% for file in server_files %}
       <tr>
-        <td>{{ file.name }}</td>
+        <td>{{ forloop.counter }} </td>
+        <td><a href="{% url 'server_file_detail' file.pk %}">{{ file.name }}</a></td>
+        <td>{{ file.server.name }}</td>
         <td>{{ file.size }}</td>
         <td>{{ file.deploy_path }}</td>
-        <td>{{ file.modified_time }}</td>
+        <td>{{ file.last_modified }}</td>
         <td>{{ file.description }}</td>
         <td>
-          <a class="btn btn-sm btn-primary" href="{% url 'server_file_detail' file.pk %}">View</a>
+          <!-- <a class="btn btn-sm btn-primary" href="{% url 'server_file_detail' file.pk %}">View</a> -->
           <a class="btn btn-sm btn-success" href="{% url 'server_file_edit' file.pk %}">Edit</a>
           <a class="btn btn-sm btn-danger" href="{% url 'server_file_delete' file.pk %}">Delete</a>
           <a class="btn btn-sm btn-info" href="{% url 'server_file_compare' file.pk %}">Compare</a>

@@ -4,13 +4,14 @@
 {% block content %}
   <h1>Compare {{ server_file.name }}</h1>
   <p>
+    <a href="{% url 'server_detail' server.pk %}" class="btn btn-info">Return</a>
+    <a href="{% url 'server_file_detail' server_file.pk %}"  class="btn btn-primary" >Detail</a>
     <a href="{% url 'server_file_edit' server_file.pk %}" class="btn btn-primary">Edit</a>
     <a href="{% url 'server_file_delete' server_file.pk %}" class="btn btn-danger">Delete</a>
-    <a href="{% url 'server_file_detail' server_file.pk %}" class="btn btn-secondary">Back</a>
-    <a href="{% url 'server_detail' server.pk %}" class="btn btn-secondary">返回服务器</a>
-    <button type="button" class="btn btn-primary" id="deploy-button">Deploy</button>
+    <a type="button" class="btn btn-warning" id="deploy-button">Deploy</a>
 
   </p>
+  <div id="toast-container"></div>
   <table class="table">
     <thead>
       <tr>
@@ -39,14 +40,31 @@
 
 {% block extra_js %}
 
-  <script>
-    $(document).ready(function() {
-      // 部署文件
-      $('#deploy-button').on('click', function() {
-        $.post("{% url 'file_deploy' server_file.pk %}", function(data) {
-          alert(data.message);
-        });
+<script>
+  $(document).ready(function() {
+    // 部署文件
+    $('#deploy-button').on('click', function() {
+      $.post("{% url 'file_deploy' server_file.pk %}", function(data) {
+        console.log("dddd", data)
+        var message = data.message;
+        var result = data.result;
+        
+        var toastContainer = $('#toast-container');
+        var toast = $('<div class="toast align-items-center text-white bg-' + (result ? 'success' : 'danger') + ' border-0" role="alert" aria-live="assertive" aria-atomic="true"></div>')
+          .append('<div class="d-flex"><div class="toast-body">' + message + '</div><button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button></div>')
+          .appendTo(toastContainer);
+        
+        var bsToast = new bootstrap.Toast(toast[0]);
+        bsToast.show();
+        
+        if (result) {
+          setTimeout(function() {
+            location.reload();
+          }, 3000);
+        }
       });
     });
-  </script>
+  });
+</script>
+
 {% endblock %}

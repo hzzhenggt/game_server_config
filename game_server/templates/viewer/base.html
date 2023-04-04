@@ -8,40 +8,68 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>{% block title %}{% endblock %}</title>
-    <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'bootstrap5/css/bootstrap.min.css' %}">
     <script src="{% static 'jquery/jquery-3.6.0.min.js' %}"></script>
 
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <div class="nav-container" style="max-width: 1366px; margin: 0 auto;">
-    <nav class="navbar navbar-expand-lg navbar-light bg-light" style="background-color: #e3f2fd;">
-        <a class="navbar-brand" href="{% url 'server_list' %}">Server Conf Manager</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav">
-                <li class="nav-item {% if request.path|urlstartswith:'/file/' %} active {% endif %}">
-                    <a class="nav-link" href="{% url 'server_file_list' %}">Server-Files</a>
-                </li>
-                <li class="nav-item {% if request.path|urlstartswith:'/command/' %} %}active{% endif %}">
-                    <a class="nav-link" href="{% url 'commands' %}">Commands</a>
-                </li>
-                <li class="nav-item {% if request.path|urlstartswith:'/history/' %} %}active{% endif %}">
-                    <a class="nav-link" href="{% url 'history_list' %}">History</a>
-                </li>
-                <li class="nav-item {% if request.path == '/' %}active{% endif %}">
-                    <a class="nav-link" href="{% url 'server_list' %}">Servers</a>
-                </li>
-            </ul>
+    <style>
+        html, body {
+            height: 100%;
+        }
+        .wrapper {
+            display: flex;
+            flex-direction: column;
+            min-height: 100%;
+        }
+        .main {
+            flex-grow: 1;
+        }
+        .footer {
+            margin-top: auto;
+        }
+    </style>
+    <div class="wrapper">
+        <div class="main">
+            <div class="nav-container" style="max-width: 1366px; margin: 0 auto;">
+                <nav class="navbar navbar-expand-lg navbar-light bg-light" style="background-color: #e3f2fd;">
+                    <a class="navbar-brand" href="{% url 'server_list' %}">Server Conf Manager</a>
+                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarNav">
+                        <ul class="navbar-nav">
+                            <li class="nav-item {% if request.path|urlstartswith:'/file/' %} active {% endif %}">
+                                <a class="nav-link" href="{% url 'server_file_list' %}">Server-Files</a>
+                            </li>
+                            <li class="nav-item {% if request.path|urlstartswith:'/command/' %} %}active{% endif %}">
+                                <a class="nav-link" href="{% url 'commands' %}">Commands</a>
+                            </li>
+                            <li class="nav-item {% if request.path|urlstartswith:'/history/' %} %}active{% endif %}">
+                                <a class="nav-link" href="{% url 'history_list' %}">History</a>
+                            </li>
+                            <li class="nav-item {% if request.path == '/' %}active{% endif %}">
+                                <a class="nav-link" href="{% url 'server_list' %}">Servers</a>
+                            </li>
+                        </ul>
+                    </div>
+                </nav>
+            </div>
+                <div class="container">
+                    {% block content %}{% endblock %}
+                </div>
+                <script src="{% static 'bootstrap5/js/bootstrap.min.js' %}"></script>
+                {% block extra_js %}{% endblock %}
         </div>
-    </nav>
-</div>
-    <div class="container">
-        {% block content %}{% endblock %}
+        <div class="footer">
+            <footer>
+                <div class="container">
+                    <p>&copy;  Server Conf Manager Created by xiaopantt  2023. All Rights Reserved. </p>
+                </div>
+            </footer>
+        </div>
     </div>
-    <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
-    {% block extra_js %}{% endblock %}
+
 </body>
 </html>

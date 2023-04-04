@@ -1,7 +1,6 @@
 <!-- commands.html -->
 {% extends 'viewer/base.html' %}
-{% load humanize %}
-{% load django_bootstrap5 %}
+{% load django_bootstrap5 humanize %}
 {% block content %}
   <h1>Commands</h1>
 
@@ -21,7 +20,9 @@
     <table class="table table-striped table-hover">
       <thead>
         <tr>
+          <th>#</th>
           <th>Name</th>
+          <th>Project</th>
           <th>content</th>
           <th>updated</th>
           <th>Actions</th>
@@ -30,7 +31,9 @@
       <tbody>
         {% for command in commands %}
           <tr>
+            <td>{{ forloop.counter }}</td>
             <td>{{ command.name }}</td>
+            <td>{{ command.project }}</td>
             <td>{{ command.content|truncatechars:100 }}</td>
             <td>{{ command.updated|date:"Y-m-d H:i:s" }}</td>
             <td>

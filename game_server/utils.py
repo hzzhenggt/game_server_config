@@ -4,13 +4,15 @@ from paramiko.ssh_exception import AuthenticationException, SSHException
 import yaml
 import os
 import chardet
+from io import StringIO
+
 
 def ssh_connect(server):
     """Creates an SSH connection to a server."""
     if server.password:
         auth = {'password': server.password}
     else:
-        key = paramiko.RSAKey.from_private_key(server.private_key, password=server.private_key_password)
+        key = paramiko.RSAKey.from_private_key(StringIO(server.private_key), password=server.private_key_password)
         auth = {'pkey': key}
 
     ssh = paramiko.SSHClient()
@@ -63,7 +65,6 @@ def save_file(server, path, data):
     ssh = ssh_connect(server)
     if ssh is None:
         return False
-
     sftp = ssh.open_sftp()
     try:
         with sftp.open(path, "w") as file:

@@ -1,32 +1,54 @@
 <!-- server_file_detail.html -->
 {% extends 'viewer/base.html' %}
-{% load static %}
+{% load static humanize %}
 {% block content %}
-  <h1>File Detail</h1>
+  <h1>Server File Detail: {{ server_file.name }}</h1>
   <div class="row">
-    <div class="col-md-6">
-      <h3>name: {{ file.name }}</h3>
-      <p>Path: {{ file.path }}</p>
-      <p>Size: {{ file.size }}</p>
-      <p>Server: {{ file.server }}</p>
-      <hr>
-      <pre><code>{{ file.content }}</code></pre>
-      <hr>
+    <div class="col-md-12">
+      <p><b>Server:</b> {{ server_file.server.name }}</p>
+      <p><b>Path:</b> {{ server_file.deploy_path }}</p>
+      <p><b>Size:</b> {{ server_file.size }}</p>
+      <p><b>Updated:</b> {{ server_file.last_modified | date:"Y-m-d H:i:s" }}</p>
+      <div id="toast-container"></div>
+      <a href="{% url 'server_file_edit' server_file.pk %}" class="btn btn-primary">Edit</a>
+      <a href="{% url 'server_file_delete' server_file.pk %}" class="btn btn-danger">Delete</a>
+      <a href="{% url 'server_file_compare' server_file.pk %}" class="btn btn-warning" >Compare</a>
       <button type="button" class="btn btn-primary" id="deploy-button">Deploy</button>
+
+      <h3>Content:</h3>
+      <hr>
+      <code>{{ server_file.content }}</code>
+      <hr>
     </div>
   </div>
 {% endblock %}
 
 {% block extra_js %}
 
-  <script>
-    $(document).ready(function() {
-      // 部署文件
-      $('#deploy-button').on('click', function() {
-        $.post("{% url 'file_deploy' file.pk %}", function(data) {
-          alert(data.message);
-        });
+<script>
+  $(document).ready(function() {
+    // 部署文件
+    $('#deploy-button').on('click', function() {
+      $.post("{% url 'file_deploy' server_file.pk %}", function(data) {
+        console.log("dddd", data)
+        var message = data.message;
+        var result = data.result;
+        
+        var toastContainer = $('#toast-container');
+        var toast = $('<div class="toast align-items-center text-white bg-' + (result ? 'success' : 'danger') + ' border-0" role="alert" aria-live="assertive" aria-atomic="true"></div>')
+          .append('<div class="d-flex"><div class="toast-body">' + message + '</div><button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button></div>')
+          .appendTo(toastContainer);
+        
+        var bsToast = new bootstrap.Toast(toast[0]);
+        bsToast.show();
+        
+        if (result) {
+          setTimeout(function() {
+            location.href = "{% url 'server_file_compare' server_file.pk %}";
+          }, 3000);
+        }
       });
     });
-  </script>
+  });
+</script>
 {% endblock %}

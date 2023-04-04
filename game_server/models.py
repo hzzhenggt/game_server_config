@@ -1,6 +1,7 @@
 from django.db import models
 
 from .utils import ssh_connect, list_files, get_file, save_file, execute_command
+from apps.core.models import Project
 
 
 class Server(models.Model):
@@ -11,16 +12,26 @@ class Server(models.Model):
     password = models.CharField(max_length=100, blank=True, null=True)
     private_key = models.TextField(blank=True, null=True)
     private_key_password = models.CharField(max_length=100, blank=True, null=True, default="")
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='servers', blank=True, null=True)
 
     def __str__(self):
         return self.host
-    
+
     def get_ssh_client(self):
         ssh = ssh_connect(self)
         return ssh
 
+    class Meta:
+        permissions = (
+            ('can_view_server', 'Can view server'),
+            ('can_add_server', 'Can add server'),
+            ('can_change_server', 'Can change server'),
+            ('can_delete_server', 'Can delete server'),
+        )
+
 
 class ServerFile(models.Model):
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='server_files', blank=True, null=True)
     name = models.CharField(max_length=100, blank=True, null=True, default="新的文件")
     server = models.ForeignKey(Server, on_delete=models.CASCADE, related_name='files')
     deploy_path = models.CharField(max_length=1000, blank=True, null=True, default="")
@@ -37,10 +48,10 @@ class ServerFile(models.Model):
 
     def deploy_file(self, deploy_path):
         return save_file(self.server, deploy_path, self.content)
-    
-    
+
 
 class Command(models.Model):
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='server_commands', blank=True, null=True)
     name = models.CharField(max_length=100)
     content = models.TextField()
     created = models.DateTimeField(auto_now_add=True)
@@ -50,6 +61,14 @@ class Command(models.Model):
 
     def __str__(self):
         return self.name
+    
+    class Meta:
+        permissions = (
+            ('can_view_command', 'Can view command'),
+            ('can_add_command', 'Can add command'),
+            ('can_change_command', 'Can change command'),
+            ('can_delete_command', 'Can delete command'),
+        )
 
 
 class HistoryAction:
@@ -60,6 +79,7 @@ class HistoryAction:
 
 class History(models.Model):
     # user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='server_historys', blank=True, null=True)
     user = models.CharField(max_length=100, null=True, blank=True, default="")
     server = models.CharField(max_length=100, null=True, blank=True, default="")
     action = models.CharField(max_length=100, null=True, blank=True, default="")
@@ -69,3 +89,11 @@ class History(models.Model):
 
     def __str__(self):
         return f'{self.user} - {self.server} - {self.action}'
+    
+    class Meta:
+        permissions = (
+            ('can_view_history', 'Can view history'),
+            ('can_add_history', 'Can add history'),
+            ('can_change_history', 'Can change history'),
+            ('can_delete_history', 'Can delete history'),
+        )

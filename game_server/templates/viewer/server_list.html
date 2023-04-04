@@ -6,6 +6,7 @@
   <table class="table table-striped">
     <thead>
       <tr>
+        <th>#</th>
         <th>Name</th>
         <th>Host</th>
         <th>Port</th>
@@ -17,6 +18,7 @@
     <tbody>
       {% for server in servers %}
       <tr>
+        <td>{{ forloop.counter }}. {{server.id}}</td>
         <td><a href="{% url 'server_detail' server.pk %}">{{ server.name }}</a></td>
         <td>{{ server.host }}</td>
         <td>{{ server.port }}</td>

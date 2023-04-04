@@ -1,10 +1,10 @@
 {% extends 'viewer/base.html' %}
 {% load humanize %}
 {% block content %}
-  <h1>{{ server.name }} Detail</h1>
+  <h1>Server Detail: {{ server.name }} </h1>
   <div class="row mb-3">
     <div class="col-md-3">
-      <h3>Server Info</h3>
+      <h3> Info</h3>
       <table>
         <tr>
           <td>Name:</td>
@@ -17,6 +17,14 @@
         <tr>
           <td>Port:</td>
           <td>{{ server.port }}</td>
+        </tr>
+        <tr>
+          <td>User:</td>
+          <td>{{ server.username }}</td>
+        </tr>
+        <tr>
+          <td>Auth:</td>
+          <td>{% if server.password %}password {% else %} private key {% endif %}</td>
         </tr>
       </table>
       <a class="btn btn-primary mt-3" href="{% url 'server_edit' server.pk %}">Edit Server</a>

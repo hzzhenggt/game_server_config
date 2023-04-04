@@ -1,21 +1,23 @@
 {% extends 'viewer/base.html' %}
 {% load humanize %}
 {% block content %}
-  <h1>history List</h1>
+  <h1>History List</h1>
   <table class="table table-striped">
     <thead>
       <tr>
-        <th>created</th>
-        <th>user</th>
-        <th>server</th>
-        <th>action</th>
-        <th>content</th>
-        <th>result</th>
+        <th><b>#</b></th>
+        <th><b>Created</b></th>
+        <th><b>User</b></th>
+        <th><b>Server</b></th>
+        <th><b>Action</b></th>
+        <th><b>Content</b></th>
+        <th><b>Result</b></th>
       </tr>
     </thead>
     <tbody>
       {% for history in historys %}
       <tr>
+        <td>{{ history.pk }}</td>
         <td>{{ history.created|date:"Y-m-d H:i:s" }}</td>
         <td>{{ history.user }}</td>
         <td>{{ history.server }}</td>
