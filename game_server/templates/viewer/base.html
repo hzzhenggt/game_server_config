@@ -3,6 +3,7 @@
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,19 +14,24 @@
 
     {% block extra_css %}{% endblock %}
 </head>
+
 <body>
     <style>
-        html, body {
+        html,
+        body {
             height: 100%;
         }
+
         .wrapper {
             display: flex;
             flex-direction: column;
             min-height: 100%;
         }
+
         .main {
             flex-grow: 1;
         }
+
         .footer {
             margin-top: auto;
         }
@@ -33,7 +39,7 @@
     <div class="wrapper">
         <div class="main">
             <div class="nav-container" style="max-width: 1366px; margin: 0 auto;">
-                <nav class="navbar navbar-expand-lg navbar-light bg-light" style="background-color: #e3f2fd;">
+                <nav class="navbar navbar-expand-lg navbar-light bg-light">
                     <a class="navbar-brand" href="{% url 'server_list' %}">Server Conf Manager</a>
                     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                         <span class="navbar-toggler-icon"></span>
@@ -53,23 +59,47 @@
                                 <a class="nav-link" href="{% url 'server_list' %}">Servers</a>
                             </li>
                         </ul>
+                        <div class="text-end">
+                            <button type="button" class="btn btn-secondary" disabled></button>
+                            <button type="button" class="btn btn-secondary" disabled></button>
+                          
+                            {% if user.is_authenticated %}
+                            <span>Welcome, {{ user.username }}!</span>
+                            <button type="button" class="btn btn-primary" onclick="go2Admin()">Admin</button>
+                            <button type="button" class="btn btn-danger" onclick="logout()">Logout</button>
+                            {% else %}
+                            <button type="button" class="btn btn-success" onclick="go2Login()">Login</button>
+                            {% endif %}
+                        </div>
                     </div>
                 </nav>
             </div>
-                <div class="container">
-                    {% block content %}{% endblock %}
-                </div>
-                <script src="{% static 'bootstrap5/js/bootstrap.min.js' %}"></script>
-                {% block extra_js %}{% endblock %}
+            <div class="container">
+                {% block content %}{%endblock %}
+            </div>
+            <script src="{% static 'bootstrap5/js/bootstrap.min.js' %}"></script>
+            <script>
+                function go2Login() {
+                    location.href = "/admin/login/?next=/smr/"
+                }
+                function go2Admin() {
+                    location.href = "/admin/"
+                }
+                function logout() {
+                    location.href = "/admin/login/?next=/admin/"
+                }
+            </script>
+            {% block extra_js %}{% endblock %}
         </div>
         <div class="footer">
             <footer>
                 <div class="container">
-                    <p>&copy;  Server Conf Manager Created by xiaopantt  2023. All Rights Reserved. </p>
+                    <p>&copy; Server Conf Manager Created by xiaopantt 2023. All Rights Reserved. </p>
                 </div>
             </footer>
         </div>
     </div>
 
 </body>
+
 </html>

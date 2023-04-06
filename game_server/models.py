@@ -1,7 +1,12 @@
 from django.db import models
 
 from .utils import ssh_connect, list_files, get_file, save_file, execute_command
-from apps.core.models import Project
+from django.contrib.auth.models import User, Group
+
+
+class Project(Group):
+    admins = models.ManyToManyField(User, related_name='project_admins', blank=True)
+    users = models.ManyToManyField(User, related_name='projects', blank=True)
 
 
 class Server(models.Model):
@@ -48,6 +53,14 @@ class ServerFile(models.Model):
 
     def deploy_file(self, deploy_path):
         return save_file(self.server, deploy_path, self.content)
+    
+    class Meta:
+        permissions = (
+            ('can_view_serverfile', 'Can view serverfile'),
+            ('can_add_serverfile', 'Can add serverfile'),
+            ('can_change_serverfile', 'Can change serverfile'),
+            ('can_delete_serverfile', 'Can delete serverfile'),
+        )
 
 
 class Command(models.Model):

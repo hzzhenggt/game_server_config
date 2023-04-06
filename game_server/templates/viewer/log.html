@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+  <div class="col-md-3 col-sm-3 col-xs-3">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">历史日志</h3>
+      </div>
+      <div class="panel-body">
+        <ul class="list-group">
+          {% for file in files %}
+          <li class="list-group-item {% if file.id == selected_id %}active{% endif %}">
+            <a href="?id={{file.id}}">{{ file.path }}</a>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-9 col-sm-9 col-xs-9">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">日志内容</h3>
+      </div>
+      <div class="panel-body">
+        <pre id="log-content" style="font-family: 'Courier New', Courier, monospace;">{{ content }}</pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block js %}
+<script type="text/javascript">
+  function refreshLog() {
+    var selectedId = {{ selected_id }};
+    $.get('/log_content', {'id': selectedId}, function (data) {
+      $("#log-content").html(data);
+    });
+  }
+  setInterval(refreshLog, 1000);
+</script>
+{% endblock %}

@@ -15,8 +15,9 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-
+from game_server import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('smr/', include('game_server.urls')),
+    path('', views.login_page, name='login_page'),
 ]

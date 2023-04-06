@@ -23,6 +23,10 @@ import difflib
 # from pygments.formatters import HtmlFormatter
 
 
+def login_page(request):
+    return render(request, 'viewer/login.html', {})
+
+
 @login_required
 def history_list(request):
     projects = request.user.projects.all()

@@ -3,3 +3,4 @@ django-cors-headers==3.7.0
 paramiko
 django-bootstrap5==22.2
 pygments
+chardet
