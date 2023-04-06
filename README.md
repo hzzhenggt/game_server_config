@@ -2,7 +2,7 @@
 support linux/mac ssh  file compare deploy  
 支持linux/mac的ssh 管理文件，
 简易游戏配置管理器  
-依赖
+### 依赖  
 django==3.2.5  
 django-cors-headers==3.7.0  
 paramiko  
